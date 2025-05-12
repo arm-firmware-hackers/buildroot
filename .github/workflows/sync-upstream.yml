@@ -1,0 +1,30 @@
+name: Sync Upstream Repo
+
+on:
+  schedule:
+    - cron: '0 3 * * *' # Jeden Tag um 03:00 UTC
+  workflow_dispatch:     # Manuelles Auslösen über GitHub UI
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout target repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GHP_1WBO6OIDMXGRVHKR6PIRZHFUDYUK7Y1DQ7Z9 }}
+          fetch-depth: 0
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/buildroot/buildroot.git
+          git fetch upstream
+
+      - name: Merge upstream changes
+        run: |
+          git checkout master
+          git merge upstream/master --no-edit || true
+
+      - name: Push changes to origin
+        run: |
+          git push origin master
